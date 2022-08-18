@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "discord.js": "^14.2.0",
+    "dotenv": "^16.0.1",
+    "frame": "github:greys-bots/frame",
+    "moment": "^2.29.4",
+    "node-schedule": "^2.1.0",
+    "pg": "^8.7.3"
+  },
+  "name": "bday",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
