@@ -34,10 +34,13 @@ class Command extends SlashCommand {
 
 	async execute(ctx) {
 		var name = ctx.options.getString('name').trim();
+		if(name.length > 100) return "Please enter a shorter name! Names should be 100 characters or less";
 		var ds = ctx.options.getString('date').trim();
+		if(!ds.match(/^\d{2}-\d{2}$/)) return "Please enter a valid date! Note that the format should be MM-DD, like `01-12`";
 		var bday;
 		if(ds == '02-29') bday = `2004-02-29`;
 		else bday = `2000-${ds}`;
+		if(isNaN(new Date(bday))) return "Please enter a valid date!";
 
 		await this.#stores.birthdays.create({
 			server_id: ctx.guild.id,

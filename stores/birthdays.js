@@ -76,9 +76,9 @@ class BirthdayStore extends DataStore {
 		return;
 	}
 
-	async get(server, hid) {
+	async get(server, user, hid) {
 		try {
-			var data = await this.db.query(`SELECT * FROM birthdays WHERE server_id = $1 AND hid = $2`,[server, hid]);
+			var data = await this.db.query(`SELECT * FROM birthdays WHERE server_id = $1 AND user_id = $2 AND hid = $3`,[server, user, hid]);
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e.message);
@@ -86,7 +86,7 @@ class BirthdayStore extends DataStore {
 		
 		if(data.rows?.[0]) {
 			return new Birthday(this, KEYS, data.rows[0]);
-		} else return new Birthday(this, KEYS, {server_id: server});
+		} else return new Birthday(this, KEYS, {server_id: server, user_id: user});
 	}
 
 	async getID(id) {
@@ -147,7 +147,24 @@ class BirthdayStore extends DataStore {
 		else return data.rows.map(b => new Birthday(this, KEYS, b));
 	}
 
-	async getUpcoming(server) {
+	async getDayByServer(server, ds) {
+		try {
+			var data = await this.db.query(`
+				select * from birthdays where
+				server_id = $1 and
+				to_char(bday, 'MM-DD') = $2
+			`, [server, ds])
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+
+		if(!data.rows?.[0]) return undefined;
+		else return data.rows.map(b => new Birthday(this, KEYS, b));
+	}
+
+	async getUpcoming(server, days = 30) {
+		console.log(days)
 		try {
 			var data = await this.db.query(`
 				select * from (
@@ -159,13 +176,13 @@ class BirthdayStore extends DataStore {
 						(bday + make_interval(years := $2 - extract(year from bday)::integer)) as bday
 					from birthdays
 				) t where
-				bday >= CURRENT_DATE and
-				bday <= (CURRENT_DATE + interval '30 days')
+				bday > CURRENT_DATE and
+				bday <= (CURRENT_DATE + $3 * interval '1 day')
 				and server_id = $1
 				order by bday desc;
-			`, [server, new Date().getFullYear()])
+			`, [server, new Date().getFullYear(), days])
 		} catch(e) {
-			console.log(e);
+			console.log(e, data);
 			return Promise.reject(e.message);
 		}
 
@@ -173,7 +190,7 @@ class BirthdayStore extends DataStore {
 		else return data.rows.map(b => new Birthday(this, KEYS, b));
 	}
 
-	async getRecent(server) {
+	async getRecent(server, days = 30) {
 		try {
 			var data = await this.db.query(`
 				select * from (
@@ -186,10 +203,10 @@ class BirthdayStore extends DataStore {
 					from birthdays
 				) t where
 				bday < CURRENT_DATE and
-				bday >= (CURRENT_DATE - interval '30 days')
+				bday >= (CURRENT_DATE - $3 * interval '1 day')
 				and server_id = $1
 				order by bday asc;
-			`, [server, new Date().getFullYear()])
+			`, [server, new Date().getFullYear(), days])
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e.message);
@@ -270,7 +287,6 @@ class BirthdayStore extends DataStore {
 					fail: true,
 					err: "Please provide an export from me, PluralKit, or Tupperbox!"
 				}
-				break;
 		}
 
 		if(!toImport?.length) return {

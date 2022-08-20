@@ -9,6 +9,30 @@ class Command extends SlashCommand {
 		super({
 			name: 'recent',
 			description: "View recent birthdays",
+			options: [{
+				name: 'days',
+				description: "The number of days to include upcoming birthdays for. Default: 30 days",
+				type: ACOT.String,
+				choices: [
+					{
+						name: '1 day',
+						value: '1'
+					},
+					{
+						name: '7 days',
+						value: '7'
+					},
+					{
+						name: '30 days',
+						value: '30'
+					},
+					{
+						name: '90 days',
+						value: '90'
+					}
+				],
+				required: false
+			}],
 			usage: [
 				"- View birthdays that happened in the past 30 days"
 			]
@@ -18,7 +42,10 @@ class Command extends SlashCommand {
 	}
 
 	async execute(ctx) {
-		var bdays = await this.#stores.birthdays.getRecent(ctx.guild.id);
+		var days = ctx.options.getString('days')?.trim();
+		if(days) days = parseInt(days);
+
+		var bdays = await this.#stores.birthdays.getRecent(ctx.guild.id, days);
 		if(!bdays?.length) return "No recent birthdays found!";
 
 		var embeds = await this.#bot.utils.genEmbeds(this.#bot, bdays, (bd) => ({

@@ -1,5 +1,5 @@
 const { Models: { SlashCommand } } = require('frame');
-const { ApplicationCommandOptionType: ACOT, ChannelType: CT } = require('discord.js');
+const { ApplicationCommandOptionType: ACOT } = require('discord.js');
 
 class Command extends SlashCommand {
 	#bot;
@@ -40,7 +40,8 @@ class Command extends SlashCommand {
 			usage: [
 				"[target] - Set the ping target for celebrating birthdays",
 				"target: role [role] - Set a role to be the ping target"
-			]
+			],
+			permissions: ['ManageMessages']
 		})
 		this.#bot = bot;
 		this.#stores = stores;

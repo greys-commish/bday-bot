@@ -27,7 +27,8 @@ class Command extends SlashCommand {
 			usage: [
 				"- View the current channel",
 				"[channel] - Set a new channel"
-			]
+			],
+			permissions: ['ManageMessages']
 		})
 		this.#bot = bot;
 		this.#stores = stores;
