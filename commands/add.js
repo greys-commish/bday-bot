@@ -39,8 +39,6 @@ class Command extends SlashCommand {
 		if(ds == '02-29') bday = `2004-02-29`;
 		else bday = `2000-${ds}`;
 
-		console.log(bday)
-
 		await this.#stores.birthdays.create({
 			server_id: ctx.guild.id,
 			user_id: ctx.user.id,

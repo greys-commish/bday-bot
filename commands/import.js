@@ -46,7 +46,8 @@ class Command extends SlashCommand {
 			return "Please attach a valid .json file!";
 		}
 
-		var result = await this.#stores.birthdays.import(data);
+		var result = await this.#stores.birthdays.import(data, ctx.guild.id, ctx.user.id);
+		if(result.fail) return result.err;
 		return `Birthdays imported!\nCreated: ${result.created}\nUpdated: ${result.updated}`
 	}
 }

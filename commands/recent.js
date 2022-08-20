@@ -18,8 +18,8 @@ class Command extends SlashCommand {
 	}
 
 	async execute(ctx) {
-		var bdays = await this.#stores.birthdays.getUpcoming(ctx.guild.id);
-		if(!bdays?.length) return "No upcoming birthdays found!";
+		var bdays = await this.#stores.birthdays.getRecent(ctx.guild.id);
+		if(!bdays?.length) return "No recent birthdays found!";
 
 		var embeds = await this.#bot.utils.genEmbeds(this.#bot, bdays, (bd) => ({
 			name: bd.name,

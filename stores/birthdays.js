@@ -169,8 +169,6 @@ class BirthdayStore extends DataStore {
 			return Promise.reject(e.message);
 		}
 
-		console.log(data.rows[0])
-
 		if(!data.rows?.[0]) return undefined;
 		else return data.rows.map(b => new Birthday(this, KEYS, b));
 	}
@@ -180,12 +178,15 @@ class BirthdayStore extends DataStore {
 			var data = await this.db.query(`
 				select * from (
 					select
-						*,
+						id,
+						server_id,
+						user_id,
+						name,
 						(bday + make_interval(years := $2 - extract(year from bday)::integer)) as bday
 					from birthdays
 				) t where
 				bday < CURRENT_DATE and
-				bday >= (CURRENT_DATE + interval '30 days')
+				bday >= (CURRENT_DATE - interval '30 days')
 				and server_id = $1
 				order by bday asc;
 			`, [server, new Date().getFullYear()])
@@ -220,10 +221,91 @@ class BirthdayStore extends DataStore {
 		return;
 	}
 
-	async import(data) {
-		// TODO: implement importing
-		// should probably have different functions for handling tbox vs pk files?
-		// may also create our own exports for taking around to different servers. hmm
+	async export(server, user) {
+		var bdays = await this.getByUser(server, user);
+		if(!bdays?.length) return Promise.reject("No birthdays to export!");
+		return {
+			birthdays: bdays.map(x => ({
+				name: x.name,
+				bday: x.bday
+			}))
+		}
+	}
+
+	async import(data, server, user) {
+		var created = 0,
+			updated = 0,
+			toImport = [],
+			list = [];
+		switch(this.typeCheck(data)) {
+			case 'tb':
+				list = data.tuppers.filter(x => x.birthday);
+				if(!list?.length) break;
+
+				toImport = list.map(x => {
+					return {
+						name: x.name,
+						bday: x.birthday
+					}
+				})
+				break;
+			case 'pk':
+				list = data.members.filter(x => x.birthday)
+				if(!list?.length) break;
+
+				toImport = list.map(x => {
+					return {
+						name: x.name,
+						bday: x.birthday
+					}
+				})
+				break;
+			case 'bd':
+				list = data.birthdays;
+				if(!list?.length) break;
+				toImport = list;
+				break;
+			default:
+				return {
+					fail: true,
+					err: "Please provide an export from me, PluralKit, or Tupperbox!"
+				}
+				break;
+		}
+
+		if(!toImport?.length) return {
+			fail: true,
+			err: "No birthdays to import!"
+		}
+
+		var bdays = await this.getByUser(server, user);
+		for(var im of toImport) {
+			var bd = bdays?.find(x => x.name.toLowerCase() == im.name.toLowerCase());
+			if(bd) {
+				bd.bday = im.bday;
+				await bd.save();
+				updated += 1;
+			} else {
+				await this.create({
+					server_id: server,
+					user_id: user,
+					...im
+				});
+				created += 1;
+			}
+		}
+
+		return {
+			updated,
+			created
+		}
+	}
+
+	typeCheck(data) {
+		if(data.tuppers) return 'tb';
+		if(data.birthdays) return 'bd';
+		if(data.uuid) return 'pk';
+		return 'x';
 	}
 }
 

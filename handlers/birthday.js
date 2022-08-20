@@ -10,7 +10,7 @@ class BirthdayHandler {
 		this.stores = bot.stores;
 
 		bot.once('ready', () => {
-			this.job = schedule.scheduleJob('0 12 * * *', this.handleBirthdays)
+			this.job = schedule.scheduleJob('0 12 * * *', () => this.handleBirthdays())
 		})
 	}
 
@@ -27,14 +27,12 @@ class BirthdayHandler {
 		}
 
 		if(!bdays?.length) return;
-		console.log(bdays)
 
 		var configs = {};
 		var toSend = {};
 		for(var bd of bdays) {
 			if(!configs[bd.server_id]) configs[bd.server_id] = await this.stores.configs.get(bd.server_id);
 			var cfg = configs[bd.server_id];
-			console.log(cfg)
 			if(!toSend[cfg.channel]) toSend[cfg.channel] = { config: cfg, bdays: []};
 			toSend[cfg.channel].bdays.push(`**${bd.name}** (<@${bd.user_id}>)`)
 		}

@@ -33,7 +33,6 @@ class Command extends SlashCommand {
 		if(user) bdays = await this.#stores.birthdays.getByUser(ctx.guild.id, user.id);
 		else bdays = await this.#stores.birthdays.getAll(ctx.guild.id);
 		if(!bdays?.length) return "No birthdays found!";
-		console.log(bdays)
 		
 		var embeds = [];
 		var users = {};
@@ -58,7 +57,7 @@ class Command extends SlashCommand {
 			var tmp = await this.#bot.utils.genEmbeds(this.#bot, data, (d) => {
 				return {
 					name: d.name,
-					value: getStamp(d.date, 'D')
+					value: `${getStamp(d.date, 'D')} (${getStamp(d.date, 'R')})`
 				}
 			}, {
 				title: `Birthdays for user ${us.user.tag}`
