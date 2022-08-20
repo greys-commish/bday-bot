@@ -13,6 +13,12 @@ class Birthday extends DataObject {
 	constructor(store, keys, data) {
 		super(store, keys, data);
 	}
+
+	getStamp(format) {
+		var d = new Date(this.bday);
+		d.setYear(2022);
+		return `<t:${Math.floor(d.getTime()/1000)}:${format}>`;
+	}
 }
 
 class BirthdayStore extends DataStore {
@@ -141,6 +147,57 @@ class BirthdayStore extends DataStore {
 		else return data.rows.map(b => new Birthday(this, KEYS, b));
 	}
 
+	async getUpcoming(server) {
+		try {
+			var data = await this.db.query(`
+				select * from (
+					select
+						id,
+						server_id,
+						user_id,
+						name,
+						(bday + make_interval(years := $2 - extract(year from bday)::integer)) as bday
+					from birthdays
+				) t where
+				bday >= CURRENT_DATE and
+				bday <= (CURRENT_DATE + interval '30 days')
+				and server_id = $1
+				order by bday desc;
+			`, [server, new Date().getFullYear()])
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+
+		console.log(data.rows[0])
+
+		if(!data.rows?.[0]) return undefined;
+		else return data.rows.map(b => new Birthday(this, KEYS, b));
+	}
+
+	async getRecent(server) {
+		try {
+			var data = await this.db.query(`
+				select * from (
+					select
+						*,
+						(bday + make_interval(years := $2 - extract(year from bday)::integer)) as bday
+					from birthdays
+				) t where
+				bday < CURRENT_DATE and
+				bday >= (CURRENT_DATE + interval '30 days')
+				and server_id = $1
+				order by bday asc;
+			`, [server, new Date().getFullYear()])
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+
+		if(!data.rows?.[0]) return undefined;
+		else return data.rows.map(b => new Birthday(this, KEYS, b));
+	}
+
 	async update(id, data = {}) {
 		try {
 			await this.db.query(`UPDATE birthdays SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
@@ -161,6 +218,12 @@ class BirthdayStore extends DataStore {
 		}
 		
 		return;
+	}
+
+	async import(data) {
+		// TODO: implement importing
+		// should probably have different functions for handling tbox vs pk files?
+		// may also create our own exports for taking around to different servers. hmm
 	}
 }
 
