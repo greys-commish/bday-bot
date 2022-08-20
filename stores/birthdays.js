@@ -9,10 +9,6 @@ const KEYS = {
 	bday: { patch: true }
 }
 
-function pad(s) {
-	return ('00' + s).slice(-2);
-}
-
 class Birthday extends DataObject {	
 	constructor(store, keys, data) {
 		super(store, keys, data);
@@ -29,6 +25,7 @@ class BirthdayStore extends DataStore {
 			id 					SERIAL PRIMARY KEY,
 			server_id 			TEXT,
 			user_id 			TEXT,
+			hid 				TEXT,
 			name 				TEXT,
 			bday 				DATE
 		)`)
@@ -129,10 +126,7 @@ class BirthdayStore extends DataStore {
 		else return data.rows.map(b => new Birthday(this, KEYS, b));
 	}
 
-	async getToday() {
-		var date = new Date();
-		var ds = `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-
+	async getDay(ds) {
 		try {
 			var data = await this.db.query(`
 				select * from birthdays where

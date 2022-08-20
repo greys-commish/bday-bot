@@ -37,7 +37,7 @@ class Command extends SlashCommand {
 		var config = await this.#stores.configs.get(ctx.guild.id);
 		var chan = ctx.options.getChannel('channel');
 
-		if(!channel) {
+		if(!chan) {
 			return {embeds: [{
 				title: 'Birthday reminders channel',
 				description: `The current reminders channel is: ${config.channel ? `<#${config.channel.id}>` : '(not set)'}`

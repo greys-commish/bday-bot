@@ -13,8 +13,8 @@ class Command extends SlashCommand {
 				{
 					name: 'user',
 					description: "The user to view birthdays for",
-					type: ACOT.String,
-					required: true
+					type: ACOT.User,
+					required: false
 				}
 			],
 			usage: [
@@ -32,7 +32,9 @@ class Command extends SlashCommand {
 		var bdays;
 		if(user) bdays = await this.#stores.birthdays.getByUser(ctx.guild.id, user.id);
 		else bdays = await this.#stores.birthdays.getAll(ctx.guild.id);
-
+		if(!bdays?.length) return "No birthdays found!";
+		console.log(bdays)
+		
 		var embeds = [];
 		var users = {};
 		for(var b of bdays) {
@@ -46,18 +48,38 @@ class Command extends SlashCommand {
 
 		for(var u of Object.keys(users)) {
 			var data = users[u];
-			var user;
+			var us;
 			try {
-				user = await ctx.guild.members.fetch(u);
+				us = await ctx.guild.members.fetch(u);
 			} catch(e) {
 				continue;
 			}
 
-			var tmp = await this.#bot.utils.genEmbeds(this.#bot)
+			var tmp = await this.#bot.utils.genEmbeds(this.#bot, data, (d) => {
+				return {
+					name: d.name,
+					value: getStamp(d.date, 'D')
+				}
+			}, {
+				title: `Birthdays for user ${us.user.tag}`
+			}, 10, {addition: null})
+
+			embeds = embeds.concat(tmp);
 		}
-		// to do: group bdays by user, then paginate
-		// similar to help cmd with subcommands
+
+		embeds = embeds.map(e => e.embed);
+
+		for(var i = 0; i < embeds.length; i++)
+			embeds[i].title += ` (${i+1}/${embeds.length})`
+
+		return embeds;
 	}
+}
+
+function getStamp(bday, format) {
+	var d = new Date(bday.getTime());
+	d.setYear(2022);
+	return `<t:${Math.floor(d.getTime()/1000)}:${format}>`;
 }
 
 module.exports = (bot, stores) => new Command(bot, stores);
