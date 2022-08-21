@@ -21,7 +21,8 @@ const bot = new FrameClient({
 		Intents.GuildMessageReactions,
 		Intents.GuildMembers,
 		Intents.DirectMessages,
-		Intents.DirectMessageReactions
+		Intents.DirectMessageReactions,
+		Intents.MessageContent
 	],
 	partials: [
 		Partials.Message,
