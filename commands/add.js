@@ -26,7 +26,8 @@ class Command extends SlashCommand {
 			usage: [
 				"[name] [date] - Add a new birthday"
 			],
-			extra: "Example: `/add name:example date:01-12` sets your birthday to January 12th"
+			extra: "Example: `/add name:example date:01-12` sets your birthday to January 12th",
+			guildOnly: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;

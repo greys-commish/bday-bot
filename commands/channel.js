@@ -28,7 +28,8 @@ class Command extends SlashCommand {
 				"- View the current channel",
 				"[channel] - Set a new channel"
 			],
-			permissions: ['ManageMessages']
+			permissions: ['ManageMessages'],
+			guildOnly: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;

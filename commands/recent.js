@@ -35,7 +35,8 @@ class Command extends SlashCommand {
 			}],
 			usage: [
 				"- View birthdays that happened in the past 30 days"
-			]
+			],
+			guildOnly: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;

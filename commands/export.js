@@ -12,7 +12,8 @@ class Command extends SlashCommand {
 			description: "Export birthdays to import somewhere else",
 			usage: [
 				"- Export your registered birthdays"
-			]
+			],
+			guildOnly: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;

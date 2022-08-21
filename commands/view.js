@@ -20,7 +20,8 @@ class Command extends SlashCommand {
 			usage: [
 				"- View all server birthdays",
 				"[user] - View birthdays set by a specific user"
-			]
+			],
+			guildOnly: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;

@@ -22,7 +22,8 @@ class Command extends SlashCommand {
 			usage: [
 				"[birthday] - Deletes a birthday",
 				"- Deletes ALL birthdays"
-			]
+			],
+			guildOnly: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;

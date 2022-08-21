@@ -10,7 +10,8 @@ class Command extends SlashCommand {
 			description: "View today's birthdays",
 			usage: [
 				"- View birthdays happening today"
-			]
+			],
+			guildOnly: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;

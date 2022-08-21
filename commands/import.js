@@ -27,7 +27,8 @@ class Command extends SlashCommand {
 			usage: [
 				"[url] - Import a file with a URL",
 				"[file] - Import a file with an attachment"
-			]
+			],
+			guildOnly: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;

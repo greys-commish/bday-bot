@@ -41,7 +41,8 @@ class Command extends SlashCommand {
 				"[target] - Set the ping target for celebrating birthdays",
 				"target: role [role] - Set a role to be the ping target"
 			],
-			permissions: ['ManageMessages']
+			permissions: ['ManageMessages'],
+			guildOnly: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;

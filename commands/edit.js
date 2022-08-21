@@ -43,7 +43,8 @@ class Command extends SlashCommand {
 			usage: [
 				"[birthday] property:date [value] - Edit the date for a birthday",
 				"[birthday] property:name [value] - Edit the name for a birthday"
-			]
+			],
+			guildOnly: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;

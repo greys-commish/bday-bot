@@ -19,7 +19,6 @@ const bot = new FrameClient({
 		Intents.Guilds,
 		Intents.GuildMessages,
 		Intents.GuildMessageReactions,
-		Intents.GuildMembers,
 		Intents.DirectMessages,
 		Intents.DirectMessageReactions,
 		Intents.MessageContent
