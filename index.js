@@ -17,11 +17,8 @@ const path = require("path");
 const bot = new FrameClient({
 	intents: [
 		Intents.Guilds,
-		Intents.GuildMessages,
-		Intents.GuildMessageReactions,
 		Intents.DirectMessages,
-		Intents.DirectMessageReactions,
-		Intents.MessageContent
+		Intents.DirectMessageReactions
 	],
 	partials: [
 		Partials.Message,
