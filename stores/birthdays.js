@@ -107,6 +107,7 @@ class BirthdayStore extends DataStore {
 			var data = await this.db.query(`
 				select * from birthdays where
 				server_id = $1
+				order by bday asc
 			`, [server])
 		} catch(e) {
 			console.log(e);
@@ -122,6 +123,7 @@ class BirthdayStore extends DataStore {
 			var data = await this.db.query(`
 				select * from birthdays where
 				server_id = $1 AND user_id = $2
+				order by bday asc
 			`, [server, user])
 		} catch(e) {
 			console.log(e);

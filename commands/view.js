@@ -15,11 +15,44 @@ class Command extends SlashCommand {
 					description: "The user to view birthdays for",
 					type: ACOT.User,
 					required: false
+				},
+				{
+					name: 'sort_by',
+					description: "Choose how to sort the data",
+					type: ACOT.String,
+					required: false,
+					choices: [
+						{
+							name: 'alphabetical',
+							value: 'name'
+						},
+						{
+							name: 'date',
+							value: 'bday'
+						}
+					]
+				},
+				{
+					name: 'sort_order',
+					description: "The order to sort data in",
+					type: ACOT.String,
+					required: false,
+					choices: [
+						{
+							name: 'ascending',
+							value: 'asc'
+						},
+						{
+							name: 'descending',
+							value: 'desc'
+						}
+					]
 				}
 			],
 			usage: [
 				"- View all server birthdays",
-				"[user] - View birthdays set by a specific user"
+				"[user] - View birthdays set by a specific user",
+				"<user> [sort_by] [sort_order] - Choose how to sort the list"
 			],
 			guildOnly: true
 		})
@@ -29,6 +62,10 @@ class Command extends SlashCommand {
 
 	async execute(ctx) {
 		var user = ctx.options.getUser('user');
+		var sb = ctx.options.getString('sort_by');
+		var so = ctx.options.getString('sort_order');
+		
+		const YEAR = new Date().getFullYear();
 
 		var bdays;
 		if(user) bdays = await this.#stores.birthdays.getByUser(ctx.guild.id, user.id);
@@ -40,14 +77,18 @@ class Command extends SlashCommand {
 		for(var b of bdays) {
 			if(!users[b.user_id]) users[b.user_id] = [];
 
+			var tm = new Date(b.bday.getTime());
+			tm.setYear(YEAR);
+
 			users[b.user_id].push({
 				name: b.name,
-				date: b.bday
+				date: tm
 			})
 		}
 
 		for(var u of Object.keys(users)) {
 			var data = users[u];
+			data = sortDates(data, sb, so);
 			var us;
 			try {
 				us = await ctx.guild.members.fetch(u);
@@ -77,9 +118,37 @@ class Command extends SlashCommand {
 }
 
 function getStamp(bday, format) {
-	var d = new Date(bday.getTime());
-	d.setYear(2022);
-	return `<t:${Math.floor(d.getTime()/1000)}:${format}>`;
+	return `<t:${Math.floor(bday.getTime()/1000)}:${format}>`;
+}
+
+function sortDates(data, by, ord) {
+	var t = data;
+	switch(by) {
+		case 'name':
+			t = data.sort((a,b) => {
+				a = a.name.toLowerCase();
+				b = b.name.toLowerCase();
+
+				
+				return (
+					a > b ? 1 :
+					a < b ? -1 :
+					0
+				)
+			})
+			break;
+		default:
+			t = data.sort((a,b) => {
+				return (
+					a.date -
+					b.date
+				)
+			})
+			break;
+	}
+
+	if(ord == 'desc') t = t.reverse();
+	return t;
 }
 
 module.exports = (bot, stores) => new Command(bot, stores);
