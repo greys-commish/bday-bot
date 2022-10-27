@@ -10,7 +10,7 @@ class BirthdayHandler {
 		this.stores = bot.stores;
 
 		bot.once('ready', () => {
-			this.job = schedule.scheduleJob('0 12 * * *', () => this.handleBirthdays())
+			this.job = schedule.scheduleJob('0 0/1 * * *', () => this.handleBirthdays())
 		})
 	}
 
@@ -33,6 +33,11 @@ class BirthdayHandler {
 		for(var bd of bdays) {
 			if(!configs[bd.server_id]) configs[bd.server_id] = await this.stores.configs.get(bd.server_id);
 			var cfg = configs[bd.server_id];
+
+			if(!cfg.timezone) cfg.timezone = 'Europe/London';
+			var tzDate = new Date(new Date().toLocaleString('en-US', { timeZone: cfg.timezone }))
+			if(tzDate.getHours() !== 12) continue; // check if it's noon, ignore birthdays if it isn't
+
 			if(!toSend[cfg.channel]) toSend[cfg.channel] = { config: cfg, bdays: []};
 			toSend[cfg.channel].bdays.push(`**${bd.name}** (<@${bd.user_id}>)`)
 		}
