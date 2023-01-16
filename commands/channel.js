@@ -42,7 +42,7 @@ class Command extends SlashCommand {
 		if(!chan) {
 			return {embeds: [{
 				title: 'Birthday reminders channel',
-				description: `The current reminders channel is: ${config.channel ? `<#${config.channel.id}>` : '(not set)'}`
+				description: `The current reminders channel is: ${config.channel ? `<#${config.channel}>` : '(not set)'}`
 			}]}
 		}
 
