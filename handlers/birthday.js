@@ -48,7 +48,7 @@ class BirthdayHandler {
 			try {
 				channel = await this.bot.channels.fetch(c);
 			} catch(e) {
-				console.log(e)
+				console.log(`Error fetching channel ${c} in server ${data.config.server_id}: ${e.message}`)
 				continue;
 			}
 
@@ -70,7 +70,11 @@ class BirthdayHandler {
 			}
 
 			msg = msg + bds;
-			await channel.send(msg);
+			try {
+				await channel.send(msg);	
+			} catch(e) {
+				console.log(`Error sending message in channel ${channel.id}: ${e.message}`)
+			}
 		}
 	}
 
