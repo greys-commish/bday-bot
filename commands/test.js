@@ -20,10 +20,11 @@ class Command extends SlashCommand {
 	}
 
 	async execute(ctx) {
-		await ctx.reply('Testing...');
-		await this.#bot.handlers.birthday.handleBirthdays();
+		await ctx.deferReply();
+		var result = await this.#bot.handlers.birthday.testServer(ctx.guild.id);
 
-		return;
+		if(result.success) return `✅ ${result.message}`
+		else return `❌ ${result.message}`
 	}
 }
 

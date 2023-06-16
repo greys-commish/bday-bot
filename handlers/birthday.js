@@ -23,7 +23,7 @@ class BirthdayHandler {
 		if(!bdays) bdays = []
 		if(this.leapCheck(ds, year)) {
 			var extras = await this.stores.birthdays.getDay('02-29');
-			bdays = bdays.concat(extras)
+			bdays = bdays.concat(extras ?? []);
 		}
 
 		if(!bdays?.length) return;
@@ -44,46 +44,74 @@ class BirthdayHandler {
 
 		for(var c of Object.keys(toSend)) {
 			var data = toSend[c];
-			var channel;
-			try {
-				channel = await this.bot.channels.fetch(c);
-			} catch(e) {
-				console.log(`Error fetching channel ${c} in server ${data.config.server_id}: ${e.message}`)
-				continue;
-			}
-
 			var bds = data.bdays.join('\n')
 
-			var msg;
-			switch(data.config.pings) {
-				case 'everyone':
-					msg = "Hey @everyone! Here are today's birthdays:\n";
-					break;
-				case 'user':
-				case undefined:
-				case null:
-					msg = "Hey everyone! Here are today's birthdays:\n";
-					break;
-				default:
-					msg = `Hey <@&${data.config.pings}>! Here are today's birthdays:\n`;
-					break;
-			}
-
-			msg = msg + bds;
-			try {
-				await channel.send(msg);	
-			} catch(e) {
-				console.log(`Error sending message in channel ${channel.id}: ${e.message}`)
-			}
+			await this.sendBirthdays(data, bds)
 		}
+	}
+
+	async sendBirthdays(data, bdays) {
+		var channel;
+		try {
+			channel = await this.bot.channels.fetch(data.config.channel);
+		} catch(e) {
+			console.log(`Error fetching channel ${data.config.channel} in server ${data.config.server_id}: ${e.message}`)
+			return;
+		}
+		
+		var msg;
+		switch(data.config.pings) {
+			case 'everyone':
+				msg = "Hey @everyone! Here are today's birthdays:\n";
+				break;
+			case 'user':
+			case undefined:
+			case null:
+				msg = "Hey everyone! Here are today's birthdays:\n";
+				break;
+			default:
+				msg = `Hey <@&${data.config.pings}>! Here are today's birthdays:\n`;
+				break;
+		}
+
+		msg = msg + bdays;
+		try {
+			await channel.send(msg);	
+		} catch(e) {
+			console.log(`Error sending message in channel ${channel.id}: ${e.message}`)
+		}
+
+		return;
+	}
+
+	async testServer(server) {
+		var date = new Date();
+		var year = date.getYear();
+		var ds = `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+		
+		var config = await this.stores.configs.get(server);
+		var raw = await this.stores.birthdays.getDay(ds);
+		if(raw?.length) raw = raw.filter(x => x.server_id == server);
+		if(!raw?.length) return { success: false, message: "No birthdays to send for today!" };
+
+		var bds = raw.map(bd => `**${bd.name}** (<@${bd.user_id}>)`);
+
+		try {
+			await this.sendBirthdays({config}, bds);
+		} catch(e) {
+			console.log(e.message ?? e);
+			return { success: false, message: "There was an error with sending birthdays :(" };
+		}
+
+		return { success: true, message: "Birthdays should've been sent!" };
 	}
 
 	// include leap birthdays today?
 	leapCheck(ds, year) {
-		if(!this.isLeap(year)) return false;
-		if(ds != '02-28') return false;
+		if(this.isLeap(year) && ds == '02-29') return true;
+		if(!this.isLeap(year) && ds != '03-01') return true;
 
-		return true;
+		return false;
 	}
 
 	isLeap(yr) {
