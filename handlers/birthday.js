@@ -109,7 +109,7 @@ class BirthdayHandler {
 	// include leap birthdays today?
 	leapCheck(ds, year) {
 		if(this.isLeap(year) && ds == '02-29') return true;
-		if(!this.isLeap(year) && ds != '03-01') return true;
+		if(!this.isLeap(year) && ds == '03-01') return true;
 
 		return false;
 	}
