@@ -16,7 +16,7 @@ class Birthday extends DataObject {
 
 	getStamp(format) {
 		var d = new Date(this.bday);
-		d.setYear(2022);
+		d.setYear(new Date().getFullYear());
 		return `<t:${Math.floor(d.getTime()/1000)}:${format}>`;
 	}
 }
