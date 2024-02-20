@@ -84,12 +84,14 @@ class BirthdayHandler {
 		return;
 	}
 
-	async testServer(server) {
+	async testServer(server, channel) {
 		var date = new Date();
 		var year = date.getYear();
 		var ds = `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 		
 		var config = await this.stores.configs.get(server);
+		if(!config?.channel && !channel) return { success: false, message: 'No channel specified or configured for the server!' };
+		if(channel) config.channel = channel;
 		var raw = await this.stores.birthdays.getDay(ds);
 		if(raw?.length) raw = raw.filter(x => x.server_id == server);
 		if(!raw?.length) return { success: false, message: "No birthdays to send for today!" };

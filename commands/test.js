@@ -1,5 +1,5 @@
 const { Models: { SlashCommand } } = require('frame');
-const { ApplicationCommandOptionType: ACOT } = require('discord.js');
+const { ApplicationCommandOptionType: ACOT, ChannelType: CT } = require('discord.js');
 
 class Command extends SlashCommand {
 	#bot;
@@ -10,10 +10,26 @@ class Command extends SlashCommand {
 			name: 'test',
 			description: "Test the birthday function",
 			usage: [
-				"- Test stuff"
+				"- Test the birthday function with the configured channel",
+				"[channel] - Test the birthday function with a specified channel"
 			],
-			ownerOnly: true,
-			guildOnly: true
+			options: [
+				{
+					name: 'channel',
+					description: "The channel to send the message to",
+					type: ACOT.Channel,
+					channel_types: [
+						CT.GuildText,
+						CT.GuildNews,
+						CT.GuildNewsThread,
+						CT.GuildPrivateThread,
+						CT.GuildPublicThread
+					],
+					required: false
+				}
+			],
+			guildOnly: true,
+			permissions: ['ManageMessages'],
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -21,7 +37,8 @@ class Command extends SlashCommand {
 
 	async execute(ctx) {
 		await ctx.deferReply();
-		var result = await this.#bot.handlers.birthday.testServer(ctx.guild.id);
+		var ch = ctx.options.getChannel('channel');
+		var result = await this.#bot.handlers.birthday.testServer(ctx.guild.id, ch?.id);
 
 		if(result.success) return `✅ ${result.message}`
 		else return `❌ ${result.message}`
