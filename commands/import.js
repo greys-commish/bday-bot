@@ -9,7 +9,7 @@ class Command extends SlashCommand {
 	constructor(bot, stores) {
 		super({
 			name: 'import',
-			description: "Import birthdays from Tupperbox or PluralKit",
+			description: "Import birthdays from Tupperbox or PluralKit. Imports private members by default",
 			options: [
 				{
 					name: 'url',
@@ -22,11 +22,18 @@ class Command extends SlashCommand {
 					description: "A direct file upload",
 					type: ACOT.Attachment,
 					required: false
+				},
+				{
+					name: 'private',
+					description: "Choose whether private members should be imported",
+					type: ACOT.Boolean,
+					required: false
 				}
 			],
 			usage: [
 				"[url] - Import a file with a URL",
-				"[file] - Import a file with an attachment"
+				"[file] - Import a file with an attachment",
+				"[private: false] - Import a file without private members included"
 			],
 			guildOnly: true
 		})
@@ -37,6 +44,8 @@ class Command extends SlashCommand {
 	async execute(ctx) {
 		var url = ctx.options.getString('url')?.trim();
 		var file = ctx.options.getAttachment('file')?.url;
+		var priv = ctx.options.getBoolean('private');
+		if(priv !== false) priv = true;
 		if(!url && !file) return "I need either a file URL or a direct upload!";
 		var f = url ?? file;
 		var data;
@@ -47,7 +56,7 @@ class Command extends SlashCommand {
 			return "Please attach a valid .json file!";
 		}
 
-		var result = await this.#stores.birthdays.import(data, ctx.guild.id, ctx.user.id);
+		var result = await this.#stores.birthdays.import(data, ctx.guild.id, ctx.user.id, priv);
 		if(result.fail) return result.err;
 		return `Birthdays imported!\nCreated: ${result.created}\nUpdated: ${result.updated}`
 	}

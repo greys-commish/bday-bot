@@ -262,7 +262,7 @@ class BirthdayStore extends DataStore {
 		}
 	}
 
-	async import(data, server, user) {
+	async import(data, server, user, priv) {
 		var created = 0,
 			updated = 0,
 			toImport = [],
@@ -283,12 +283,16 @@ class BirthdayStore extends DataStore {
 				list = data.members.filter(x => x.birthday)
 				if(!list?.length) break;
 
-				toImport = list.map(x => {
-					return {
+				for(let x of list) {
+					if(!priv)
+						if(x.privacy.visibility == 'private' || x.privacy.birthday_privacy == 'private')
+							continue;
+
+					toImport.push({
 						name: x.name,
 						bday: x.birthday
-					}
-				})
+					})
+				}
 				break;
 			case 'bd':
 				list = data.birthdays;
