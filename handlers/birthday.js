@@ -14,32 +14,32 @@ class BirthdayHandler {
 		})
 	}
 
+	// new strategy: go through every server
+	// and try to get birthdays for the given date
 	async handleBirthdays() {
-		var date = new Date();
-		var year = date.getYear();
-		var ds = `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-
-		var bdays = await this.stores.birthdays.getDay(ds);
-		if(!bdays) bdays = []
-		if(this.leapCheck(ds, year)) {
-			var extras = await this.stores.birthdays.getDay('02-29');
-			bdays = bdays.concat(extras ?? []);
-		}
-
-		if(!bdays?.length) return;
-
-		var configs = {};
+		var configs = await this.stores.configs.getAll();
 		var toSend = {};
-		for(var bd of bdays) {
-			if(!configs[bd.server_id]) configs[bd.server_id] = await this.stores.configs.get(bd.server_id);
-			var cfg = configs[bd.server_id];
-
+		for(var cfg of configs) {
 			if(!cfg.timezone) cfg.timezone = 'Europe/London';
+
 			var tzDate = new Date(new Date().toLocaleString('en-US', { timeZone: cfg.timezone }))
 			if(tzDate.getHours() !== 12) continue; // check if it's noon, ignore birthdays if it isn't
+			var year = tzDate.getYear();
+			var ds = `${pad(tzDate.getMonth() + 1)}-${pad(tzDate.getDate())}`;
 
-			if(!toSend[cfg.channel]) toSend[cfg.channel] = { config: cfg, bdays: []};
-			toSend[cfg.channel].bdays.push(`**${bd.name}** (<@${bd.user_id}>)`)
+			var bdays = await this.stores.birthdays.getDay(ds);
+			if(!bdays) bdays = []
+			if(this.leapCheck(ds, year)) {
+				var extras = await this.stores.birthdays.getDay('02-29');
+				bdays = bdays.concat(extras ?? []);
+			}
+
+			if(!bdays?.length) return;
+
+			toSend[cfg.channel] = {
+				config: cfg,
+				bdays: bdays.map(bd => `**${bd.name}** (<@${bd.user_id}>)`)
+			}
 		}
 
 		for(var c of Object.keys(toSend)) {

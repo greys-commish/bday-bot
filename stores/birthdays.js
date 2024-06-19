@@ -251,6 +251,17 @@ class BirthdayStore extends DataStore {
 		return;
 	}
 
+	async deleteAllByServer(server) {
+		try {
+			await this.db.query(`DELETE FROM birthdays WHERE server_id = $1`, [server]);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+		
+		return;
+	}
+
 	async export(server, user) {
 		var bdays = await this.getByUser(server, user);
 		if(!bdays?.length) return Promise.reject("No birthdays to export!");
