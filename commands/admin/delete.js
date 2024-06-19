@@ -47,7 +47,7 @@ class Command extends SlashCommand {
 		var conf = await this.#bot.utils.getConfirmation(this.#bot, reply, ctx.user);
 		if(conf.msg) return conf.msg;
 
-		await this.#stores.birthdays.deleteAllByUser(ctx.guild.id, ctx.user.id);
+		await this.#stores.birthdays.deleteAllByUser(ctx.guild.id, user.id);
 		return 'Birthdays deleted!';
 	}
 }
