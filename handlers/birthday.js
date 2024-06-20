@@ -42,13 +42,13 @@ class BirthdayHandler {
 				bds[ds] = bdays;
 			}
 
+			bdays = bdays.filter(x => x.server_id == cfg.server_id)
 			if(!bdays?.length) return;
 
 			toSend[cfg.channel] = {
 				config: cfg,
 				bdays: (
 					bdays
-					  .filter(x => x.server_id == cfg.server_id)
 					  .map(bd => `**${bd.name}** (<@${bd.user_id}>)`)
 				)
 			}
