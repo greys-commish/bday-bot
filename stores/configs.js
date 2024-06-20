@@ -96,6 +96,19 @@ class ConfigStore extends DataStore {
 		} else return new Config(this, KEYS, {});
 	}
 
+	async getAll() {
+		try {
+			var data = await this.db.query(`SELECT * FROM configs`);
+		} catch(e) {
+			console.log(e);
+			return Promise.reject(e.message);
+		}
+		
+		if(data.rows?.[0]) {
+			return data.rows.map(r => new Config(this, KEYS, r));
+		} else return [];
+	}
+
 	async update(id, data = {}) {
 		try {
 			await this.db.query(`UPDATE configs SET ${Object.keys(data).map((k, i) => k+"=$"+(i+2)).join(",")} WHERE id = $1`,[id, ...Object.values(data)]);
