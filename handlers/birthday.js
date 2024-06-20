@@ -19,6 +19,7 @@ class BirthdayHandler {
 	async handleBirthdays() {
 		var configs = await this.stores.configs.getAll();
 		var toSend = {};
+		var bds = {}
 		for(var cfg of configs) {
 			if(!cfg.timezone) cfg.timezone = 'Europe/London';
 
@@ -27,18 +28,29 @@ class BirthdayHandler {
 			var year = tzDate.getYear();
 			var ds = `${pad(tzDate.getMonth() + 1)}-${pad(tzDate.getDate())}`;
 
-			var bdays = await this.stores.birthdays.getDay(ds);
-			if(!bdays) bdays = []
-			if(this.leapCheck(ds, year)) {
-				var extras = await this.stores.birthdays.getDay('02-29');
-				bdays = bdays.concat(extras ?? []);
+			var bdays;
+			if(bds[ds]) {
+				bdays = bds[ds];
+			} else {
+				bdays = await this.stores.birthdays.getDay(ds);
+				if(!bdays) bdays = [];
+				if(this.leapCheck(ds, year)) {
+					var extras = await this.stores.birthdays.getDay('02-29');
+					bdays = bdays.concat(extras ?? []);
+				}
+
+				bds[ds] = bdays;
 			}
 
 			if(!bdays?.length) return;
 
 			toSend[cfg.channel] = {
 				config: cfg,
-				bdays: bdays.map(bd => `**${bd.name}** (<@${bd.user_id}>)`)
+				bdays: (
+					bdays
+					  .filter(x => x.server_id == cfg.server_id)
+					  .map(bd => `**${bd.name}** (<@${bd.user_id}>)`
+				)
 			}
 		}
 
