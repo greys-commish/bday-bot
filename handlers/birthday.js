@@ -49,7 +49,7 @@ class BirthdayHandler {
 				bdays: (
 					bdays
 					  .filter(x => x.server_id == cfg.server_id)
-					  .map(bd => `**${bd.name}** (<@${bd.user_id}>)`
+					  .map(bd => `**${bd.name}** (<@${bd.user_id}>)`)
 				)
 			}
 		}
