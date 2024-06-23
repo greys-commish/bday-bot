@@ -10,7 +10,7 @@ class BirthdayHandler {
 		this.stores = bot.stores;
 
 		bot.once('ready', () => {
-			this.job = schedule.scheduleJob('0 0/1 * * *', () => this.handleBirthdays())
+			this.job = schedule.scheduleJob('0 */1 * * *', () => this.handleBirthdays())
 		})
 	}
 
@@ -42,8 +42,8 @@ class BirthdayHandler {
 				bds[ds] = bdays;
 			}
 
-			bdays = bdays.filter(x => x.server_id == cfg.server_id)
-			if(!bdays?.length) return;
+			bdays = bdays.filter(x => x.server_id == cfg.server_id);
+			if(!bdays?.length) continue;
 
 			toSend[cfg.channel] = {
 				config: cfg,
