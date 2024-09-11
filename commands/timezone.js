@@ -23,7 +23,7 @@ class Command extends SlashCommand {
 				"[timezone] - Set the server timezone"
 			],
 			guildOnly: true,
-			permissions: ['ManageServer']
+			permissions: ['ManageGuild']
 		})
 		this.#bot = bot;
 		this.#stores = stores;
