@@ -23,15 +23,15 @@ class Command extends SlashCommand {
 			title: "About Me",
 			description: "Hi, I'm Birthday Bot! 🎉" +
 						 "\nI help keep track of birthdays for you :)" +
-						 "\n\nI was commissioned by Zodiac System, and I'm fully compatible with PluralKit and Tupperbox!" +
+						 "\n\nI was commissioned by Schäflein, and I'm fully compatible with PluralKit and Tupperbox!" +
 						 "\nHere's some more about me:",
 			fields: [
-				{name: "Original idea", value: "Zodiac System"},
+				{name: "Original idea", value: "Schäflein"},
 				{name: "Developers", value: "[greysdawn](https://github.com/greysdawn) / @greysdawn"},
 				{name: "Support Server", value: "[Clicky!](https://discord.gg/EvDmXGt)", inline: true},
 				{name: "GitHub Repo", value: "[Clicky!](https://github.com/greys-commish/bday-bot)", inline: true},
 				{name: "Stats", value: `Guilds: ${ctx.client.guilds.cache.size} | Users: ${ctx.client.users.cache.size}`},
-				{name: "Want to support my creators?", value: "[Patreon](https://patreon.com/greysdawn) | [Ko-Fi](https://ko-fi.com/greysdawn)"}
+				{name: "Want to support my developers?", value: "[Patreon](https://patreon.com/greysdawn) | [Ko-Fi](https://ko-fi.com/greysdawn)"}
 			]
 		}]}
 	}
