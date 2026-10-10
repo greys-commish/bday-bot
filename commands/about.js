@@ -11,7 +11,8 @@ class Command extends SlashCommand {
 			usage: [
 				"- Gives info about the bot"
 			],
-			ephemeral: true
+			ephemeral: true,
+			v2: true
 		})
 
 		this.#bot = bot;
@@ -19,19 +20,32 @@ class Command extends SlashCommand {
 	}
 
 	async execute(ctx) {
-		return {embeds: [{
-			title: "About Me",
-			description: "Hi, I'm Birthday Bot! 🎉" +
-						 "\nI help keep track of birthdays for you :)" +
-						 "\n\nI was commissioned by Schäflein, and I'm fully compatible with PluralKit and Tupperbox!" +
-						 "\nHere's some more about me:",
-			fields: [
-				{name: "Original idea", value: "Schäflein"},
-				{name: "Developers", value: "[greysdawn](https://github.com/greysdawn) / @greysdawn"},
-				{name: "Support Server", value: "[Clicky!](https://discord.gg/EvDmXGt)", inline: true},
-				{name: "GitHub Repo", value: "[Clicky!](https://github.com/greys-commish/bday-bot)", inline: true},
-				{name: "Stats", value: `Guilds: ${ctx.client.guilds.cache.size} | Users: ${ctx.client.users.cache.size}`},
-				{name: "Want to support my developers?", value: "[Patreon](https://patreon.com/greysdawn) | [Ko-Fi](https://ko-fi.com/greysdawn)"}
+		return {components: [{
+			type: 17,
+			components: [
+				{
+					type: 10,
+					content: `## About Me`
+				},
+				{
+					type: 10,
+					content: (
+						"Hi, I'm Birthday Bot! 🎉" +
+						"\nI help keep track of birthdays for you :)" +
+						"\n\nI was commissioned by Schäflein, and I'm fully compatible with PluralKit and Tupperbox!" +
+						"\nHere's some more about me:"
+					)
+				},
+				{
+					type: 10,
+					content: (
+						"### Original idea\nSchäflein",
+						"\n### Developers\n[selenated](https://github.com/selenated) / @.selenated" +
+						"\n### Links\n[Support server](https://discord.gg/EvDmXGt) | [Github repo](https://github.com/greys-commish/bday-bot)" +
+						"\n### Stats" + `\nGuilds: ${ctx.client.guilds.cache.size} | Users: ${ctx.client.users.cache.size}` +
+						"\n### Want to support my developers?\n[Patreon](https://patreon.com/selenated) | [Ko-Fi](https://ko-fi.com/selenated)"
+					)
+				}
 			]
 		}]}
 	}

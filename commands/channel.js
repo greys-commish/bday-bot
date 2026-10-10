@@ -40,9 +40,18 @@ class Command extends SlashCommand {
 		var chan = ctx.options.getChannel('channel');
 
 		if(!chan) {
-			return {embeds: [{
-				title: 'Birthday reminders channel',
-				description: `The current reminders channel is: ${config.channel ? `<#${config.channel}>` : '(not set)'}`
+			return {components: [{
+				type: 17,
+				components: [
+					{
+						type: 10,
+						content: `## Birthday reminders channel`
+					},
+					{
+						type: 10,
+						content: `The current reminders channel is: ${config.channel ? `<#${config.channel}>` : '(not set)'}`
+					}
+				]
 			}]}
 		}
 

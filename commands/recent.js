@@ -36,25 +36,50 @@ class Command extends SlashCommand {
 			usage: [
 				"- View birthdays that happened in the past 30 days"
 			],
-			guildOnly: true
+			guildOnly: true,
+			v2: true,
+			ephemeral: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
 	}
 
 	async execute(ctx) {
+		var cfg = await this.#stores.configs.get(ctx.guild.id);
+		if(!cfg.timezone) cfg.timezone = 'Europe/London';
+		var date = new Date(new Date().toLocaleString('en-US', { timeZone: cfg.timezone }));
+
 		var days = ctx.options.getString('days')?.trim();
 		if(days) days = parseInt(days);
 
-		var bdays = await this.#stores.birthdays.getRecent(ctx.guild.id, days);
+		var bdays = await this.#stores.birthdays.getRecent(ctx.guild.id, days, date);
 		if(!bdays?.length) return "No recent birthdays found!";
 
-		var embeds = await this.#bot.utils.genEmbeds(this.#bot, bdays, (bd) => ({
-			name: bd.name,
-			value: `${bd.getStamp('D')} (${bd.getStamp('R')})\n(Added by <@${bd.user_id}>)`
-		}), { title: 'Recent Birthdays'}, 10);
+		var embeds = await this.#bot.utils.genComps(bdays, (bd) => ({
+			type: 10,
+			content: `### ${bd.name}\n${bd.getStamp('D', cfg.timezone)} (${bd.getStamp('R', cfg.timezone)})\n(Added by <@${bd.user_id}>)`
+		}), 10);
 
-		return embeds.map(e => e.embed);
+		return embeds.map(e => ({
+			allowed_mentions: { parse: [] },
+			components: [{
+				type: 17,
+				components: [
+					{
+						type: 10,
+						content: `## Recent Birthdays`
+					},
+					...e,
+					{
+						type: 14
+					},
+					{
+						type: 10,
+						content: `-# Server timezone: \`${cfg.timezone}\`\n-# Dates are displayed in your timezone, but adjusted to midnight in the server's timezone`
+					}
+				]
+			}]
+		}));
 	}
 }
 

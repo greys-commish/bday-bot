@@ -54,13 +54,17 @@ class Command extends SlashCommand {
 				"[user] - View birthdays set by a specific user",
 				"<user> [sort_by] [sort_order] - Choose how to sort the list"
 			],
-			guildOnly: true
+			guildOnly: true,
+			v2: true,
+			ephemeral: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
 	}
 
 	async execute(ctx) {
+		let cfg = await this.#stores.configs.get(ctx.guild.id);
+
 		var user = ctx.options.getUser('user');
 		var sb = ctx.options.getString('sort_by');
 		var so = ctx.options.getString('sort_order');
@@ -77,13 +81,7 @@ class Command extends SlashCommand {
 		for(var b of bdays) {
 			if(!users[b.user_id]) users[b.user_id] = [];
 
-			var tm = new Date(b.bday.getTime());
-			tm.setYear(YEAR);
-
-			users[b.user_id].push({
-				name: b.name,
-				date: tm
-			})
+			users[b.user_id].push(b)
 		}
 
 		for(var u of Object.keys(users)) {
@@ -96,22 +94,38 @@ class Command extends SlashCommand {
 				continue;
 			}
 
-			var tmp = await this.#bot.utils.genEmbeds(this.#bot, data, (d) => {
+			var tmp = await this.#bot.utils.genComps(data, (d) => {
 				return {
-					name: d.name,
-					value: `${getStamp(d.date, 'D')} (${getStamp(d.date, 'R')})`
+					type: 10,
+					content: `### ${d.name}\n${d.getStamp('D', cfg.timezone)} (${d.getStamp('R', cfg.timezone)})`
 				}
-			}, {
-				title: `Birthdays for user ${us.user.tag}`
-			}, 10, {addition: null})
+			}, 10)
 
-			embeds = embeds.concat(tmp);
+			for(var t of tmp) {
+				embeds.push({
+					allowed_mentions: { parse: [] },
+					components: [
+						{
+							type: 17,
+							components: [
+								{
+									type: 10,
+									content: `## Birthdays for user ${us.user.tag}`
+								},
+								...t,
+								{
+									type: 14
+								},
+								{
+									type: 10,
+									content: `-# Server timezone: \`${cfg.timezone}\`\n-# Dates are displayed in your timezone, but adjusted to midnight in the server's timezone`
+								}
+							]
+						}
+					], 
+				})
+			}
 		}
-
-		embeds = embeds.map(e => e.embed);
-
-		for(var i = 0; i < embeds.length; i++)
-			embeds[i].title += ` (${i+1}/${embeds.length})`
 
 		return embeds;
 	}
@@ -140,8 +154,8 @@ function sortDates(data, by, ord) {
 		default:
 			t = data.sort((a,b) => {
 				return (
-					a.date -
-					b.date
+					a.bday -
+					b.bday
 				)
 			})
 			break;

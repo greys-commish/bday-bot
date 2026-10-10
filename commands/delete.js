@@ -23,7 +23,8 @@ class Command extends SlashCommand {
 				"[birthday] - Deletes a birthday",
 				"- Deletes ALL birthdays"
 			],
-			guildOnly: true
+			guildOnly: true,
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -41,7 +42,7 @@ class Command extends SlashCommand {
 		}
 
 		var rdata = {
-			content: 
+			content:
 				"Are you **sure** you want to delete ALL your birthdays?\n" +
 				"**WARNING: This can't be undone!**",
 			components: [

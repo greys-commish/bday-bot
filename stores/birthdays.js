@@ -14,8 +14,8 @@ class Birthday extends DataObject {
 		super(store, keys, data);
 	}
 
-	getStamp(format) {
-		var d = new Date(this.bday);
+	getStamp(format, tz) {
+		var d = new Date(new Date(this.bday.getTime()).toLocaleString('en-US', { timeZone: tz }));
 		d.setYear(new Date().getFullYear());
 		return `<t:${Math.floor(d.getTime()/1000)}:${format}>`;
 	}
@@ -165,7 +165,7 @@ class BirthdayStore extends DataStore {
 		else return data.rows.map(b => new Birthday(this, KEYS, b));
 	}
 
-	async getUpcoming(server, days = 30) {
+	async getUpcoming(server, days = 30, date) {
 		console.log(days)
 		try {
 			var data = await this.db.query(`
@@ -178,11 +178,11 @@ class BirthdayStore extends DataStore {
 						(bday + make_interval(years := $2 - extract(year from bday)::integer)) as bday
 					from birthdays
 				) t where
-				bday > CURRENT_DATE and
-				bday <= (CURRENT_DATE + $3 * interval '1 day')
+				bday > $4 and
+				bday <= ($4 + $3 * interval '1 day')
 				and server_id = $1
 				order by bday desc;
-			`, [server, new Date().getFullYear(), days])
+			`, [server, new Date().getFullYear(), days, date])
 		} catch(e) {
 			console.log(e, data);
 			return Promise.reject(e.message);
@@ -192,7 +192,7 @@ class BirthdayStore extends DataStore {
 		else return data.rows.map(b => new Birthday(this, KEYS, b));
 	}
 
-	async getRecent(server, days = 30) {
+	async getRecent(server, days = 30, date) {
 		try {
 			var data = await this.db.query(`
 				select * from (
@@ -204,11 +204,11 @@ class BirthdayStore extends DataStore {
 						(bday + make_interval(years := $2 - extract(year from bday)::integer)) as bday
 					from birthdays
 				) t where
-				bday < CURRENT_DATE and
-				bday >= (CURRENT_DATE - $3 * interval '1 day')
+				bday < $4 and
+				bday >= ($4 - $3 * interval '1 day')
 				and server_id = $1
 				order by bday asc;
-			`, [server, new Date().getFullYear(), days])
+			`, [server, new Date().getFullYear(), days, date])
 		} catch(e) {
 			console.log(e);
 			return Promise.reject(e.message);

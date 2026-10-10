@@ -24,9 +24,10 @@ class BirthdayHandler {
 			if(!cfg.timezone) cfg.timezone = 'Europe/London';
 
 			var tzDate = new Date(new Date().toLocaleString('en-US', { timeZone: cfg.timezone }))
-			if(tzDate.getHours() !== 12) continue; // check if it's noon, ignore birthdays if it isn't
 			var year = tzDate.getYear();
 			var ds = `${pad(tzDate.getMonth() + 1)}-${pad(tzDate.getDate())}`;
+			console.log(ds, cfg.timezone, tzDate);
+			if(tzDate.getHours() !== 12) continue; // check if it's noon, ignore birthdays if it isn't
 
 			var bdays;
 			if(bds[ds]) {
@@ -97,13 +98,14 @@ class BirthdayHandler {
 	}
 
 	async testServer(server, channel) {
-		var date = new Date();
-		var year = date.getYear();
-		var ds = `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-		
 		var config = await this.stores.configs.get(server);
 		if(!config?.channel && !channel) return { success: false, message: 'No channel specified or configured for the server!' };
 		if(channel) config.channel = channel;
+
+		var date = new Date(new Date().toLocaleString('en-US', { timeZone: config.timezone }))
+		var year = date.getYear();
+		var ds = `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+
 		var raw = await this.stores.birthdays.getDay(ds);
 		if(raw?.length) raw = raw.filter(x => x.server_id == server);
 		if(!raw?.length) return { success: false, message: "No birthdays to send for today!" };

@@ -14,6 +14,7 @@ class Command extends SlashCommand {
 			],
 			guildOnly: true,
 			permissions: ['ManageMessages'],
+			v2: true
 		})
 		this.#bot = bot;
 		this.#stores = stores;
@@ -49,19 +50,25 @@ class Command extends SlashCommand {
 			else results.pass.push("Send Messages permission granted!");
 		}
 
-		return {embeds: [{
-			title: "Debug Results",
-			fields: [
-				{
-					name: 'Passing',
-					value: results.pass.length ? results.pass.map(x => `✅ ` + x).join("\n") : "(None 😟)"
-				},
-				{
-					name: 'Failing',
-					value: results.fail.length ? results.fail.map(x => `❌ ` + x).join("\n") : "(None 🎉)"
-				}
-			]
-		}]}
+		return {
+			components: [{
+				type: 17,
+				components: [
+					{
+						type: 10,
+						content: `## Debug Results`
+					},
+					{
+						type: 10,
+						content: `### Passing\n` + results.pass.length ? results.pass.map(x => `✅ ` + x).join("\n") : "(None 😟)"
+					},
+					{
+						type: 10,
+						content: `### Failing\n` + results.fail.length ? results.fail.map(x => `❌ ` + x).join("\n") : "(None 🎉)"
+					}
+				]
+			}]
+		}
 	}
 }
 
