@@ -1,4 +1,5 @@
 const { Models: { DataStore, DataObject } } = require('frame');
+const { DateTime } = require('luxon');
 
 const KEYS = {
 	id: { },
@@ -15,9 +16,8 @@ class Birthday extends DataObject {
 	}
 
 	getStamp(format, tz) {
-		var d = new Date(new Date(this.bday.getTime()).toLocaleString('en-US', { timeZone: tz }));
-		d.setYear(new Date().getFullYear());
-		return `<t:${Math.floor(d.getTime()/1000)}:${format}>`;
+		let dt = DateTime.fromObject({ year: new Date().getFullYear(), day: this.bday.getDate(), month: this.bday.getMonth()+1, hour: 0, minute: 0, second: 0 }, { zone: tz })
+		return `<t:${dt.toUnixInteger()}:${format}>`;
 	}
 }
 

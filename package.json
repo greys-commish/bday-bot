@@ -4,6 +4,7 @@
     "discord.js": "^14.2.0",
     "dotenv": "^16.0.1",
     "frame": "github:greys-bots/frame",
+    "luxon": "^3.7.2",
     "moment": "^2.29.4",
     "node-schedule": "^2.1.0",
     "pg": "^8.7.3"

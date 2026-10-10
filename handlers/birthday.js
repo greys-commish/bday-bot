@@ -1,4 +1,5 @@
 const schedule = require('node-schedule');
+const { DateTime } = require('luxon');
 
 function pad(s) {
 	return ('00' + s).slice(-2);
@@ -14,8 +15,8 @@ class BirthdayHandler {
 		})
 	}
 
-	// new strategy: go through every server
-	// and try to get birthdays for the given date
+	// dear god why did we do things this way
+	// TODO: idk redo like all of this
 	async handleBirthdays() {
 		var configs = await this.stores.configs.getAll();
 		var toSend = {};
@@ -23,11 +24,11 @@ class BirthdayHandler {
 		for(var cfg of configs) {
 			if(!cfg.timezone) cfg.timezone = 'Europe/London';
 
-			var tzDate = new Date(new Date().toLocaleString('en-US', { timeZone: cfg.timezone }))
-			var year = tzDate.getYear();
-			var ds = `${pad(tzDate.getMonth() + 1)}-${pad(tzDate.getDate())}`;
+			let tzDate = DateTime.now().setZone(cfg.timezone);
+			var year = tzDate.year;
+			var ds = `${pad(tzDate.month)}-${pad(tzDate.day)}`;
 			console.log(ds, cfg.timezone, tzDate);
-			if(tzDate.getHours() !== 12) continue; // check if it's noon, ignore birthdays if it isn't
+			if(tzDate.hour !== 12) continue; // check if it's noon, ignore birthdays if it isn't
 
 			var bdays;
 			if(bds[ds]) {
@@ -102,9 +103,9 @@ class BirthdayHandler {
 		if(!config?.channel && !channel) return { success: false, message: 'No channel specified or configured for the server!' };
 		if(channel) config.channel = channel;
 
-		var date = new Date(new Date().toLocaleString('en-US', { timeZone: config.timezone }))
-		var year = date.getYear();
-		var ds = `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+		let tzDate = DateTime.now().setZone(config.timezone);
+		var year = tzDate.year;
+		var ds = `${pad(tzDate.month)}-${pad(tzDate.day)}`;
 
 		var raw = await this.stores.birthdays.getDay(ds);
 		if(raw?.length) raw = raw.filter(x => x.server_id == server);
